@@ -9,7 +9,7 @@ import random
 def set_parser(subparsers):
 	parser_playlist=subparsers.add_parser('playlist',help='playlist utility')
 	parser_playlist.add_argument('playlistID',help='playlists to work on')
-	parser_playlist.add_argument('--read-only',action='store_true',help='don\'t modify the playlist, throw error')
+	parser_playlist.add_argument('--no-read-only',action='store_true',help='don\'t modify the playlist, throw error')
 	parser_playlist.add_argument('--randomize',action='store_true',help='randomize user playlists')
 	parser_playlist.add_argument('--outID',help='output playlist')
 	parser_playlist.set_defaults(func=m_playlist)
@@ -21,7 +21,7 @@ def m_playlist(args):
 			out_id=args.outID
 		else:
 			out_id=in_id
-		if args.read_only and in_id == out_id:
+		if (in_id == out_id) and (not args.no_read_only):
 			print('Going to modify read only playlist, exiting.')
 			exit(1)
 		randomize(in_id,out_id)
