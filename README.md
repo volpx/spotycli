@@ -1,4 +1,3 @@
-Sample Module Repository
 # Spotycli
 
 ## No Installation
