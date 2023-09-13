@@ -8,8 +8,7 @@ client_side_url = "http://127.0.0.1"
 port = 8080
 redirect_uri = "{}:{}/callback".format(client_side_url, port)
 spotipy_api_scope = (
-	"playlist-modify-public playlist-modify-private "
-	"playlist-read-collaborative playlist-read-private")
+	'playlist-modify-public playlist-modify-private playlist-read-collaborative playlist-read-private user-library-modify')
 cached_tokens='./.spotipyoauthcache'
 config_file='./config.json'
 

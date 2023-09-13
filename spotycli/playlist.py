@@ -3,18 +3,23 @@
 import spotycli.settings
 import spotycli.user
 import spotycli.api_help
+import spotycli.track
 
 import random
 
 def set_parser(subparsers):
 	parser_playlist=subparsers.add_parser('playlist',help='playlist utility')
-	parser_playlist.add_argument('playlistID',help='playlists to work on')
+	parser_playlist.add_argument('playlistID',help='playlist to work on')
 	parser_playlist.add_argument('--no-read-only',action='store_true',help='don\'t modify the playlist, throw error')
-	parser_playlist.add_argument('--randomize',action='store_true',help='randomize user playlists')
+	parser_playlist.add_argument('--randomize',action='store_true',help='randomize user playlist')
+	parser_playlist.add_argument('--set-like',action='store_true',help='set like to every track in playlist')
+	parser_playlist.add_argument('--add-all-like',action='store_true',help='add every liked track or playlist to user playlist')
 	parser_playlist.add_argument('--outID',help='output playlist')
 	parser_playlist.set_defaults(func=m_playlist)
 
 def m_playlist(args):
+	if spotycli.settings.verbose >=2:
+		print(args)
 	if args.randomize:
 		in_id=args.playlistID
 		if args.outID:
@@ -25,6 +30,35 @@ def m_playlist(args):
 			print('Going to modify read only playlist, exiting.')
 			exit(1)
 		randomize(in_id,out_id)
+	elif args.set_like:
+		in_id=args.playlistID
+		map_over_tracks(args.playlistID,spotycli.track.set_like)
+
+def get_tracks(playlist_id,spotify=None):
+	if not spotify:
+		spotify = spotycli.api_help.get_spotify()
+
+	playlist = spotify.playlist(playlist_id)
+	tracks=[]
+	loop = True
+	ret = playlist["tracks"]
+	while loop:
+		if ret['items']:
+			tracks.extend(ret["items"])
+			loop = ret['next']
+			ret = spotify.next(ret)
+		else:
+			loop = False
+	return tracks
+
+def map_over_tracks(playlist_id, func):
+	"""Map function over every track in playlist"""
+
+	spotify = spotycli.api_help.get_spotify()
+	tracks = get_tracks(playlist_id,spotify)
+
+	for track in tracks:
+		func(track['track']['id'], spotify)
 
 def randomize(in_id,out_id):
 	"""Randomize a playlist from a given source one."""
